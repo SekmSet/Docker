@@ -1,0 +1,33 @@
+version : "3.8"
+
+services:
+  db:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: docker_kiloupabocou
+      MYSQL_USER: root
+      MYSQL_PASSWORD: Obrigada
+    ports:
+      - "6033:3306"
+    volumes:
+      - ./:/var/lib/mysql
+  app:
+    build:
+      dockerfile: ./docker/Dockerfile
+      context: ./app
+    ports:
+      - "5000:80"
+    depends_on:
+      - "db"
+    env_file:
+      - app/.env
+    volumes:
+      - ./app/:/var/www/html/
+  nginx:
+    image: nginx
+    volumes:
+      - ./templates:/etc/nginx/templates
+    ports:
+      - "8080:80"
