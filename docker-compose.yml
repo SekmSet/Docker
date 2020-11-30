@@ -7,27 +7,46 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: docker_kiloupabocou
-      MYSQL_USER: root
-      MYSQL_PASSWORD: Obrigada
+      MYSQL_USER: obrigada
+      MYSQL_PASSWORD: obrigada
     ports:
       - "6033:3306"
     volumes:
-      - ./:/var/lib/mysql
+      - ./volume/mysql:/var/lib/mysql
+
   app:
     build:
-      dockerfile: ./docker/Dockerfile
-      context: ./app
-    ports:
-      - "5000:80"
+      dockerfile: ./docker/php/Dockerfile
+      context: .
+    working_dir: /var/www/html
     depends_on:
       - "db"
     env_file:
       - app/.env
     volumes:
       - ./app/:/var/www/html/
+
   nginx:
-    image: nginx
+    build:
+      dockerfile: ./docker/nginx/Dockerfile
+      context: .
+    depends_on:
+      - "app"
+    working_dir: /var/www/html
     volumes:
-      - ./templates:/etc/nginx/templates
+      - ./app:/var/www/html
+      - ./docker/nginx/templates/default.conf.template:/etc/nginx/templates/default.conf.template
+      - ./volume/nginx/logs:/var/log/nginx
     ports:
       - "8080:80"
+
+#  elasticsearch:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+#    networks:
+#      - elastic
+#  logstach:
+#  kibana:
+#    image: docker.elastic.co/kibana/kibana:7.10.0
+#    depends_on:
+#      - "elasticsearch"
+#      - "logstach"
