@@ -1,0 +1,40 @@
+filebeat.modules:
+  - module: mysql
+    error:
+      var.paths: [ "/var/log/mysql/error.log*" ]
+    slowlog:
+      var.paths: [ "/var/log/mysql/mysql-slow.log*" ]
+  - module: nginx
+    access:
+      var.paths: [ "/var/log/nginx/access.log*" ]
+    error:
+      var.paths: [ "/var/log/nginx/error.log*" ]
+
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/app/*.log
+#  - type: container
+#    stream: stdout
+#    paths:
+#      - "/usr/share/dockerlogs/*.log"
+
+processors:
+  - add_docker_metadata:
+      host: "unix://var/run/docker.sock"
+
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+#output.elasticsearch:
+#  hosts: ["http://elasticsearch:9200"]
+#  username: "elastic"
+#  password: "changeme"
+
+setup.kibana:
+  host: "kibana:5601"

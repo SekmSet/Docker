@@ -12,7 +12,9 @@ services:
     ports:
       - "6033:3306"
     volumes:
-      - ./volume/mysql:/var/lib/mysql
+      - ./docker/db/conf-file.cnf:/etc/mysql/conf.d/conf-file.cnf
+      - mysqldata:/var/lib/mysql
+      - ./logs/mysql:/var/log/mysql/
 
   app:
     build:
@@ -25,6 +27,7 @@ services:
       - app/.env
     volumes:
       - ./app/:/var/www/html/
+      - ./logs/app:/var/www/html/var/log
 
   nginx:
     build:
@@ -36,17 +39,74 @@ services:
     volumes:
       - ./app:/var/www/html
       - ./docker/nginx/templates/default.conf.template:/etc/nginx/templates/default.conf.template
-      - ./volume/nginx/logs:/var/log/nginx
+      - ./logs/nginx:/var/log/nginx
     ports:
       - "8080:80"
 
-#  elasticsearch:
-#    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
-#    networks:
-#      - elastic
-#  logstach:
-#  kibana:
-#    image: docker.elastic.co/kibana/kibana:7.10.0
-#    depends_on:
-#      - "elasticsearch"
-#      - "logstach"
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+    ports:
+      - "9200:9200"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: changeme
+    volumes:
+      - ./docker/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - elk
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.9.3
+    volumes:
+      - ./docker/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./docker/logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.config
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elk
+    depends_on:
+      - "elasticsearch"
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.10.0
+    volumes:
+      - ./docker/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./logs/nginx/:/var/log/nginx/
+      - ./logs/mysql/:/var/log/mysql/
+      - ./logs/app/:/var/log/app/
+      - /var/run/docker.sock:/var/run/docker.sock
+      - fbdata:/usr/share/filebeat/data/
+    networks:
+      - elk
+    depends_on:
+      - "elasticsearch"
+      - "nginx"
+      - "app"
+      - "logstash"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.10.0
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./docker/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
+    networks:
+      - elk
+    depends_on:
+      - "elasticsearch"
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+
+volumes:
+  mysqldata:
+    driver: local
+  esdata:
+    driver: local
+  fbdata:
+    driver: local
+
+networks:
+  elk:
+    driver: bridge
