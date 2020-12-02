@@ -1,0 +1,50 @@
+web_server: yes
+templates:
+  tv:
+
+    #    manipulate:
+    #      - title: &the
+    #          replace:
+    #            regexp: '^The\W'
+    #            format: ''
+    #      - filename: *the
+    #      - series_name: *the
+
+    private_torrents: yes
+
+    series:
+      settings:
+        tv:
+          exact: yes
+          propers: 3 days
+          quality: 720p+
+          set:
+            path: /downloads/Series/{{series_name}}
+      tv:
+        - Archer
+        - Lucifer
+#        - Beavis and Butt-head
+#        - Big Band Theory
+#        - Breaking Bad
+#        - Dexter
+#        - Fringe
+#        - Game of Thrones
+#        - Mad Men
+#        - MythBusters
+#        - The Office
+#        - Real Time with Bill Maher
+#        - South Park
+#        - True Blood
+
+    transmission:
+      enabled: yes
+      host: transmission
+      port: 9091
+      username: user
+      password: transmission
+
+tasks:
+  showrss-tv:
+    priority: 1
+    rss: http://showrss.info/user/249821.rss?magnets=true&namespaces=true&name=null&quality=null&re=null
+    template: tv

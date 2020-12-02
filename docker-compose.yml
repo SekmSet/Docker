@@ -99,6 +99,39 @@ services:
       ELASTICSEARCH_URL: http://elasticsearch:9200
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
 
+  flexget:
+    image: cpoppema/docker-flexget
+    build:
+      dockerfile: Dockerfile
+      context: ./docker/flexget/
+    environment:
+      - WEB_PASSWD=yourhorriblesecret
+      - TORRENT_PLUGIN=transmission
+      - TZ=Europe/London
+      - FLEXGET_LOG_LEVEL=debug
+    volumes:
+      - ./docker/flexget/.flexget:/root/.flexget
+      - ./data/flexget/downloads:/downloads
+    ports:
+      - 5050:5050
+
+  transmission:
+    image: ghcr.io/linuxserver/transmission
+    environment:
+      - TZ=Europe/Paris
+      - USER=user
+      - PASS=transmission
+    volumes:
+      - ./docker/transmission/config:/config
+      - ./data/transmission/downloads:/downloads
+      - ./data/transmission/watch:/watch
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+
+#  mediawiki:
+
 volumes:
   mysqldata:
     driver: local
