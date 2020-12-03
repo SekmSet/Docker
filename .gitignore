@@ -1,5 +1,12 @@
 .idea
 logs/
+data/
 *.config-lock
 *.sqlite
 *.log
+docker/flexget/.flexget/cached_resources
+docker/flexget/.flexget/received
+docker/transmission/config/dht.dat
+docker/transmission/config/blocklists
+docker/transmission/config/resume
+docker/transmission/config/torrents

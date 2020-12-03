@@ -1,15 +1,6 @@
 web_server: yes
 templates:
   tv:
-
-    #    manipulate:
-    #      - title: &the
-    #          replace:
-    #            regexp: '^The\W'
-    #            format: ''
-    #      - filename: *the
-    #      - series_name: *the
-
     private_torrents: yes
 
     series:
@@ -23,18 +14,8 @@ templates:
       tv:
         - Archer
         - Lucifer
-#        - Beavis and Butt-head
-#        - Big Band Theory
-#        - Breaking Bad
-#        - Dexter
-#        - Fringe
-#        - Game of Thrones
-#        - Mad Men
-#        - MythBusters
-#        - The Office
-#        - Real Time with Bill Maher
-#        - South Park
-#        - True Blood
+        - The Mandalorian
+        - Locke & Key
 
     transmission:
       enabled: yes
