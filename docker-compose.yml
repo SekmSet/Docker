@@ -130,13 +130,13 @@ services:
     image: mediawiki
     volumes:
       - /var/www/html/images
-      # - ./LocalSettings.php:/var/www/html/LocalSettings.php
+      - ./docker/mediawiki/LocalSettings.php:/var/www/html/LocalSettings.php
     depends_on:
       - db
     ports:
       - "8081:80"
     env_file:
-      - mediawiki/.env
+      - docker/mediawiki/.env
 volumes:
   mysqldata:
     driver: local
